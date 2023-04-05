@@ -1,9 +1,6 @@
 package bullscows;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 public class GameLogic {
 
@@ -26,26 +23,20 @@ public class GameLogic {
         int countBulls = 0;
         int countCows = 0;
 
-        boolean[] used = new boolean[10];
+        Map<Character, Boolean> used = new HashMap<>();
         for (int i = 0; i < secretCode.length(); i++) {
             if (userGuess.charAt(i) == secretCode.charAt(i)) {
                 countBulls++;
             } else {
-                int digit = secretCode.charAt(i) - '0';
-                if (!used[digit] && userGuess.contains(String.valueOf(digit))) {
+                char c = secretCode.charAt(i);
+                if (!used.containsKey(c) && userGuess.contains(String.valueOf(c))) {
                     countCows++;
-                    used[digit] = true;
+                    used.put(c, true);
                 }
             }
         }
 
-        String grade = String.format(
-                countBulls == 0 && countCows == 0 ? "None." :
-                        countBulls == 0 ? "%d cow(s)." :
-                                countCows == 0 ? "%d bull(s)." :
-                                        "%d bull(s) and %d cow(s).",
-                countBulls, countCows);
-        System.out.printf("Grade: %s\n", grade);
+        System.out.println(getGrade(countBulls, countCows));
 
         if (countBulls == secretCode.length()) {
             System.out.println("Congratulations! You guessed the secret code.");
@@ -53,20 +44,51 @@ public class GameLogic {
         }
     }
 
-    public void generateSecretCode(int numLength) {
+    public String getGrade(int bulls, int cows) {
+        String text = "Grade: ";
+        if (bulls > 0 && cows > 0) {
+            return text + bulls + (bulls == 1 ? " bull" : " bulls") + " and "
+                    + cows + (cows == 1 ? " cow." : " cows.");
+        }
+        if (bulls > 0) {
+            return text + bulls + (bulls == 1 ? " bull" : " bulls") + ".";
+        }
+        if (cows > 0) {
+            return text + cows + (cows == 1 ? " cow." : " cows.");
+        }
+        return text + "None.";
+    }
 
-        Set<Integer> uniqueDigits = new HashSet<>();
+    public void generateSecretCode(int codeLength, int charLength) {
+
+        final String characters = "0123456789abcdefghijklmnopqrstuvwxyz";
+        String workingChars = characters.substring(0, 10 + charLength);
+
+        Set<Character> uniqueChars = new HashSet<>();
         Random random = new Random(System.nanoTime());
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < numLength; i++) {
-            int digit = random.nextInt(10);
-            while (uniqueDigits.contains(digit)) {
-                digit = random.nextInt(10);
+        for (int i = 0; i < codeLength; i++) {
+            int index = random.nextInt(workingChars.length());
+            while (uniqueChars.contains(workingChars.charAt(index))) {
+                index = random.nextInt(workingChars.length());
             }
-            sb.append(digit);
-            uniqueDigits.add(digit);
+            sb.append(workingChars.charAt(index));
+            uniqueChars.add(workingChars.charAt(index));
         }
         setSecretCode(sb.toString());
+        if (codeLength == 1) {
+            setSecretCode("1");
+        }
+        String codeHash = "";
+        for (int i = 0; i < codeLength; i++) {
+            codeHash += "*";
+        }
+        String symbols = "";
+        if (charLength > 0) {
+            symbols = String.format(" (%c-%c)", workingChars.charAt(10), workingChars.charAt(9 + charLength));
+        }
+        System.out.printf("The secret is prepared: %s (0-9)%s.\n", codeHash, symbols);
+        // System.out.println("Secret: " + secretCode);
     }
 }
