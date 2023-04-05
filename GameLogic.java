@@ -19,6 +19,10 @@ public class GameLogic {
         return this.gameOver;
     }
 
+    public void setGameOver() {
+        this.gameOver = true;
+    }
+
     public void checkGuess(String userGuess) {
         int countBulls = 0;
         int countCows = 0;
@@ -35,7 +39,6 @@ public class GameLogic {
                 }
             }
         }
-
         System.out.println(getGrade(countBulls, countCows));
 
         if (countBulls == secretCode.length()) {
@@ -80,15 +83,15 @@ public class GameLogic {
         if (codeLength == 1) {
             setSecretCode("1");
         }
-        String codeHash = "";
+        StringBuilder codeHash = new StringBuilder();
         for (int i = 0; i < codeLength; i++) {
-            codeHash += "*";
+            codeHash.append("*");
         }
         String symbols = "";
         if (charLength > 0) {
             symbols = String.format(" (%c-%c)", workingChars.charAt(10), workingChars.charAt(9 + charLength));
         }
-        System.out.printf("The secret is prepared: %s (0-9)%s.\n", codeHash, symbols);
-        // System.out.println("Secret: " + secretCode);
+        System.out.printf("The secret is prepared: %s (0-9)%s.\n", codeHash.toString(), symbols);
+
     }
 }
